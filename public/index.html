@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KrishiSetu | Direct Farmer-to-Consumer Platform</title>
+
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-green: #2e7d32;
+      --accent-amber: #f59e0b;
+      --bg-light: #f8fafc;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-light);
+      margin: 0;
+    }
+    .hero-banner {
+      background: linear-gradient(135deg, #1b5e20, #388e3c);
+      color: white;
+      padding: 50px 20px;
+    }
+    .product-img {
+      height: 185px;
+      object-fit: cover;
+      width: 100%;
+    }
+    .strike-price {
+      text-decoration: line-through;
+      color: #888;
+    }
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-4px);
+    }
+    .sticky-navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      overflow: visible !important;
+    }
+    .profile-dropdown-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+    .profile-dropdown-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      margin-top: 6px;
+      min-width: 235px;
+      background-color: #fff;
+      z-index: 9999;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .profile-dropdown-menu.show-menu {
+      display: block !important;
+    }
+    .preview-box {
+      width: 100%;
+      height: 140px;
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #fafafa;
+      margin-top: 6px;
+    }
+    .preview-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .toast-notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 9999;
+      max-width: 370px;
+      display: none;
+    }
+    .payment-badge {
+      display: inline-block;
+      margin: 2px 2px 0 0;
+      padding: 2px 6px;
+      font-size: 11px;
+      border-radius: 4px;
+      background: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #c8e6c9;
+    }
+    @media (max-width: 600px) {
+      .hero-banner {
+        padding: 32px 12px;
+      }
+      .hero-banner h1 {
+        font-size: 26px !important;
+      }
+      .w3-modal-content {
+        margin: 10px !important;
+        width: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toast Notification for ID Delivery & Alerts -->
+  <div id="toastBox" class="w3-card-4 w3-round-large w3-padding w3-green toast-notification">
+    <span onclick="document.getElementById('toastBox').style.display='none'" class="w3-button w3-small w3-display-topright w3-hover-none">&times;</span>
+    <div id="toastContent"></div>
+  </div>
+
+  <!-- Responsive Navigation Bar -->
+  <div class="w3-bar w3-white w3-card sticky-navbar w3-padding-small">
+    <div class="w3-content" style="max-width: 1200px; overflow: visible;">
+      <a href="#" class="w3-bar-item w3-button w3-text-green w3-large w3-hover-none">
+        <strong><i class="fa-solid fa-seedling"></i> Krishi<span class="w3-text-dark-grey">Setu</span></strong>
+      </a>
+
+      <!-- Mobile Hamburger Button -->
+      <a href="javascript:void(0)" class="w3-bar-item w3-button w3-right w3-hide-large w3-hide-medium" onclick="toggleMobileMenu()">
+        <i class="fa-solid fa-bars w3-large"></i>
+      </a>
+
+      <!-- Right Menu (Desktop) -->
+      <div class="w3-right w3-hide-small" style="overflow: visible;">
+        <a href="#marketplace" class="w3-bar-item w3-button w3-round">Marketplace</a>
+        <a href="#calculator" class="w3-bar-item w3-button w3-round">Price Tool</a>
+        <a href="#contact" class="w3-bar-item w3-button w3-round">Contact Us</a>
+        
+        <button onclick="openSellModal()" class="w3-bar-item w3-button w3-amber w3-round w3-margin-right">
+          <i class="fa-solid fa-tractor"></i> Sell Harvest
+        </button>
+
+        <!-- Auth Button (Shown when Logged Out) -->
+        <button id="navLoginBtn" onclick="openAuthModal('login')" class="w3-bar-item w3-button w3-border w3-border-green w3-text-green w3-round w3-margin-right">
+          <i class="fa-solid fa-user"></i> Login / Register
+        </button>
+
+        <!-- Clickable User Options Dropdown (Shown when Logged In) -->
+        <div id="navUserDropdown" class="profile-dropdown-wrapper w3-margin-right" style="display: none;">
+          <button type="button" onclick="toggleProfileMenu(event)" class="w3-button w3-pale-green w3-text-green w3-border w3-border-green w3-round">
+            <i class="fa-solid fa-circle-user"></i> <span id="navUserName">Profile</span> <i class="fa-solid fa-caret-down"></i>
+          </button>
+          <div id="profileMenuContent" class="profile-dropdown-menu w3-bar-block w3-card-4 w3-border">
+            <div class="w3-container w3-padding-small w3-light-grey w3-border-bottom">
+              <small class="w3-text-grey">Registered User ID:</small><br>
+              <strong id="navUserIdBadge" class="w3-text-green">KS-0000</strong>
+            </div>
+            <a href="javascript:void(0)" onclick="closeProfileMenu(); openHistoryModal();" class="w3-bar-item w3-button">
+              <i class="fa-solid fa-clock-rotate-left w3-text-green"></i> Order & Harvest History
+            </a>
+            <a href="javascript:void(0)" onclick="closeProfileMenu(); openPaymentModal();" class="w3-bar-item w3-button">
+              <i class="fa-solid fa-credit-card w3-text-amber"></i> Payment Methods
+            </a>
+            <a href="#contact" onclick="closeProfileMenu();" class="w3-bar-item w3-button">
+              <i class="fa-solid fa-headset w3-text-blue"></i> Support & Feedback
+            </a>
+            <hr style="margin:4px 0;">
+            <a href="javascript:void(0)" onclick="closeProfileMenu(); logoutUser();" class="w3-bar-item w3-button w3-text-red">
+              <i class="fa-solid fa-right-from-bracket"></i> Logout
+            </a>
+          </div>
+        </div>
+
+        <button onclick="toggleCartModal()" class="w3-bar-item w3-button w3-green w3-round">
+          <i class="fa-solid fa-cart-shopping"></i> <span id="cartCount" class="w3-badge w3-white w3-text-green">0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Collapsible Mobile Menu -->
+    <div id="mobileMenu" class="w3-bar-block w3-white w3-hide w3-hide-large w3-hide-medium w3-border-top w3-margin-top">
+      <a href="#marketplace" onclick="toggleMobileMenu()" class="w3-bar-item w3-button"><i class="fa-solid fa-store"></i> Marketplace</a>
+      <a href="#calculator" onclick="toggleMobileMenu()" class="w3-bar-item w3-button"><i class="fa-solid fa-scale-balanced"></i> Middleman Markup Tool</a>
+      <a href="#contact" onclick="toggleMobileMenu()" class="w3-bar-item w3-button"><i class="fa-solid fa-envelope"></i> Contact & Feedback</a>
+      <a href="javascript:void(0)" onclick="toggleMobileMenu(); openSellModal();" class="w3-bar-item w3-button w3-text-amber"><strong><i class="fa-solid fa-tractor"></i> Sell Harvest</strong></a>
+      
+      <div id="mobileAuthLinks">
+        <a href="javascript:void(0)" onclick="toggleMobileMenu(); openAuthModal('login');" class="w3-bar-item w3-button w3-text-green"><strong><i class="fa-solid fa-user-plus"></i> Login / Register</strong></a>
+      </div>
+
+      <div id="mobileUserLinks" style="display:none;" class="w3-pale-green">
+        <div class="w3-bar-item"><small>Signed in as: <strong id="mobileUserName"></strong> (<span id="mobileUserId"></span>)</small></div>
+        <a href="javascript:void(0)" onclick="toggleMobileMenu(); openHistoryModal();" class="w3-bar-item w3-button"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
+        <a href="javascript:void(0)" onclick="toggleMobileMenu(); openPaymentModal();" class="w3-bar-item w3-button"><i class="fa-solid fa-credit-card"></i> Payment Methods</a>
+        <a href="javascript:void(0)" onclick="toggleMobileMenu(); logoutUser();" class="w3-bar-item w3-button w3-text-red"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+      </div>
+
+      <a href="javascript:void(0)" onclick="toggleMobileMenu(); toggleCartModal();" class="w3-bar-item w3-button w3-green">
+        <i class="fa-solid fa-cart-shopping"></i> View Basket (<span id="mobileCartCount">0</span>)
+      </a>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <div class="hero-banner w3-center">
+    <div class="w3-content">
+      <span class="w3-tag w3-amber w3-round w3-small w3-margin-bottom">Direct Supply Chain Innovation</span>
+      <h1 class="w3-xxlarge"><strong>Bypass Middlemen. Fair Prices For All.</strong></h1>
+      <p class="w3-large w3-text-light-grey" style="max-width: 700px; margin: auto;">
+        <i class="fa-solid fa-seedling"></i> Traditional farm supply chains involve 4–6 brokers who take up to 60% of the produce value. KrishiSetu connects farmers directly to consumers with full price transparency.
+      </p>
+
+      <div class="w3-row w3-margin-top">
+        <div class="w3-col m4 s12 w3-padding-small">
+          <div class="w3-card w3-white w3-text-dark-grey w3-padding w3-round-large">
+            <h3 class="w3-text-green"><strong>+45%</strong></h3>
+            <p class="w3-small">Farmer Take-Home Earnings</p>
+          </div>
+        </div>
+        <div class="w3-col m4 s12 w3-padding-small">
+          <div class="w3-card w3-white w3-text-dark-grey w3-padding w3-round-large">
+            <h3 class="w3-text-amber"><strong>-30%</strong></h3>
+            <p class="w3-small">Consumer Purchase Cost</p>
+          </div>
+        </div>
+        <div class="w3-col m4 s12 w3-padding-small">
+          <div class="w3-card w3-white w3-text-dark-grey w3-padding w3-round-large">
+            <h3 class="w3-text-blue"><strong>&lt; 24 Hrs</strong></h3>
+            <p class="w3-small">Harvest-to-Door Delivery Time</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calculator Section -->
+  <div id="calculator" class="w3-container w3-padding-48 w3-white">
+    <div class="w3-content" style="max-width: 900px;">
+      <div class="w3-center w3-margin-bottom">
+        <h2 class="w3-text-dark-grey"><strong>Mandi vs. Direct Pricing Engine</strong></h2>
+        <p class="w3-text-grey">Select an agricultural commodity to view where the money actually goes.</p>
+        
+        <select id="cropSelector" onchange="updatePriceBreakdown()" class="w3-select w3-border w3-round-large" style="max-width: 320px; display: inline-block;">
+          <option value="tomato">Fresh Tomatoes (per kg)</option>
+          <option value="onion">Red Onions (per kg)</option>
+          <option value="potato">Potatoes (per kg)</option>
+          <option value="apple">Apples (per kg)</option>
+        </select>
+      </div>
+
+      <div class="w3-row-padding">
+        <div class="w3-col m6 s12 w3-margin-bottom">
+          <div class="w3-card w3-round-large w3-padding w3-pale-red w3-border w3-border-red">
+            <h4 class="w3-text-red"><i class="fa-solid fa-xmark"></i> Traditional Mandi Chain</h4>
+            <p class="w3-small w3-text-grey">Layered broker commissions & markups</p>
+            <table class="w3-table w3-small">
+              <tr><td>Farmer Receives:</td><td class="w3-right-align"><strong id="tradFarmer">₹14</strong></td></tr>
+              <tr><td>Village Agent Markup:</td><td class="w3-right-align">₹4</td></tr>
+              <tr><td>Mandi Commission & Cess:</td><td class="w3-right-align">₹6</td></tr>
+              <tr><td>Wholesaler & Transport:</td><td class="w3-right-align">₹7</td></tr>
+              <tr><td>Retailer Margin & Wastage:</td><td class="w3-right-align">₹9</td></tr>
+              <tr class="w3-border-top w3-text-red w3-large">
+                <td><strong>Final Retail Price:</strong></td>
+                <td class="w3-right-align"><strong id="tradTotal">₹40 / kg</strong></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="w3-col m6 s12">
+          <div class="w3-card w3-round-large w3-padding w3-pale-green w3-border w3-border-green">
+            <h4 class="w3-text-green"><i class="fa-solid fa-check"></i> KrishiSetu Direct Model</h4>
+            <p class="w3-small w3-text-grey">Middlemen eliminated, direct farm-gate pricing</p>
+            <table class="w3-table w3-small">
+              <tr class="w3-text-green w3-medium"><td><strong>Direct Farmer Payout:</strong></td><td class="w3-right-align"><strong id="directFarmer">₹24 (+71%)</strong></td></tr>
+              <tr><td>Shared Hub Logistics:</td><td class="w3-right-align">₹3</td></tr>
+              <tr><td>Platform Fee (3%):</td><td class="w3-right-align">₹1</td></tr>
+              <tr><td>Middleman Commission:</td><td class="w3-right-align">₹0 (None)</td></tr>
+              <tr><td>Mandi Cess:</td><td class="w3-right-align">₹0 (None)</td></tr>
+              <tr class="w3-border-top w3-text-green w3-large">
+                <td><strong>Final Consumer Price:</strong></td>
+                <td class="w3-right-align"><strong id="directTotal">₹28 / kg (-30%)</strong></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Marketplace Section -->
+  <div id="marketplace" class="w3-container w3-padding-32 w3-light-grey">
+    <div class="w3-content" style="max-width: 1150px;">
+      <div class="w3-row w3-margin-bottom">
+        <div class="w3-col m7 s12">
+          <h2><strong>Direct Farm Produce</strong></h2>
+          <p class="w3-text-grey">Verified harvest listings directly from farmers with accepted payment options.</p>
+        </div>
+        <div class="w3-col m5 s12 w3-right-align w3-margin-top">
+          <button onclick="filterProduce('all', this)" class="w3-button w3-small w3-green w3-round filter-btn w3-margin-bottom">All</button>
+          <button onclick="filterProduce('vegetables', this)" class="w3-button w3-small w3-white w3-round w3-border filter-btn w3-margin-bottom">Vegetables</button>
+          <button onclick="filterProduce('fruits', this)" class="w3-button w3-small w3-white w3-round w3-border filter-btn w3-margin-bottom">Fruits</button>
+          <button onclick="filterProduce('grains', this)" class="w3-button w3-small w3-white w3-round w3-border filter-btn w3-margin-bottom">Grains</button>
+        </div>
+      </div>
+
+      <div id="produceGrid" class="w3-row-padding"></div>
+    </div>
+  </div>
+
+  <!-- Contact Us & Developer Feedback Section -->
+  <div id="contact" class="w3-container w3-padding-48 w3-white w3-border-top">
+    <div class="w3-content" style="max-width: 1050px;">
+      <div class="w3-center w3-margin-bottom">
+        <span class="w3-tag w3-pale-green w3-text-green w3-round">24/7 Kisan & Consumer Helpdesk</span>
+        <h2><strong>Contact Us & Developer Feedback</strong></h2>
+        <p class="w3-text-grey">Have questions, feedback, or need help with an order? Send a message directly to the developer team.</p>
+      </div>
+
+      <div class="w3-row-padding">
+        <!-- Developer Contact Card -->
+        <div class="w3-col m5 s12 w3-margin-bottom">
+          <div class="w3-card w3-round-large w3-padding-large w3-green" style="height: 100%;">
+            <h4><i class="fa-solid fa-code"></i> Developer Contact Hub</h4>
+            <p class="w3-small w3-text-light-grey">Reach out for technical support, farmer onboarding verification, or platform feedback.</p>
+            <hr style="border-color: rgba(255,255,255,0.2);">
+
+            <p><i class="fa-solid fa-user-gear w3-margin-right"></i> <strong>Lead Developer:</strong> KrishiSetu Tech Team</p>
+            <p><i class="fa-solid fa-envelope w3-margin-right"></i> <strong>Email:</strong> ggyanprakash927@gmail.com</p>
+            <p><i class="fa-solid fa-phone w3-margin-right"></i> <strong>Helpline / WhatsApp:</strong> +91 87264 62995</p>
+            <p><i class="fa-solid fa-location-dot w3-margin-right"></i> <strong>Hub Office:</strong> Agri-Innovation Center, UP, India</p>
+
+            <div class="w3-panel w3-white w3-text-dark-grey w3-round-large w3-padding w3-margin-top">
+              <small><strong><i class="fa-solid fa-bolt w3-text-amber"></i> Instant Backend Ticket SLA:</strong><br>
+              Every message is stored in the backend database and returns an immediate developer ticket confirmation.</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feedback & Message Form -->
+        <div class="w3-col m7 s12">
+          <div class="w3-card w3-round-large w3-padding-large w3-light-grey">
+            <h4><i class="fa-solid fa-paper-plane w3-text-green"></i> Send Feedback / Inquiry</h4>
+            <form id="contactForm" onsubmit="submitFeedback(event)">
+              <div class="w3-row-padding" style="margin: 0 -16px;">
+                <div class="w3-half w3-margin-bottom">
+                  <label class="w3-small"><strong>Your Name *</strong></label>
+                  <input type="text" id="fbName" class="w3-input w3-border w3-round" required placeholder="Enter full name">
+                </div>
+                <div class="w3-half w3-margin-bottom">
+                  <label class="w3-small"><strong>Email or Phone Number *</strong></label>
+                  <input type="text" id="fbContact" class="w3-input w3-border w3-round" required placeholder="email@domain.com / 98XXXXXXXX">
+                </div>
+              </div>
+
+              <div class="w3-row-padding" style="margin: 0 -16px;">
+                <div class="w3-half w3-margin-bottom">
+                  <label class="w3-small"><strong>Category</strong></label>
+                  <select id="fbType" class="w3-select w3-border w3-round">
+                    <option value="Platform Feedback">Platform Feedback</option>
+                    <option value="Farmer Onboarding Help">Farmer Onboarding Help</option>
+                    <option value="Payment / Order Issue">Payment / Order Issue</option>
+                    <option value="Bug Report / Feature Request">Bug Report / Feature Request</option>
+                  </select>
+                </div>
+                <div class="w3-half w3-margin-bottom">
+                  <label class="w3-small"><strong>Rating</strong></label>
+                  <select id="fbRating" class="w3-select w3-border w3-round">
+                    <option value="5">⭐⭐⭐⭐⭐ (5/5 Excellent)</option>
+                    <option value="4">⭐⭐⭐⭐ (4/5 Good)</option>
+                    <option value="3">⭐⭐⭐ (3/5 Average)</option>
+                    <option value="2">⭐⭐ (2/5 Needs Work)</option>
+                  </select>
+                </div>
+              </div>
+
+              <p>
+                <label class="w3-small"><strong>Your Message *</strong></label>
+                <textarea id="fbMessage" rows="3" class="w3-input w3-border w3-round" required placeholder="Write your feedback or question for the developer..."></textarea>
+              </p>
+
+              <button type="submit" class="w3-button w3-green w3-round w3-block">
+                <i class="fa-solid fa-paper-plane"></i> Send Message to Developer
+              </button>
+            </form>
+
+            <!-- Developer Automated Response Box -->
+            <div id="devResponseBox" class="w3-panel w3-pale-green w3-leftbar w3-border-green w3-round w3-padding" style="display:none;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="w3-container w3-dark-grey w3-padding-24 w3-center w3-small">
+    <p><strong><i class="fa-solid fa-seedling w3-text-green"></i> KrishiSetu</strong> — Empowering Indian Farmers & Consumers with Zero-Broker Supply Chains.</p>
+  </footer>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- 1. Sell Harvest Modal (with Image Upload & Accepted Payment Methods) -->
+  <div id="farmerModal" class="w3-modal">
+    <div class="w3-modal-content w3-card-4 w3-animate-top w3-round-large" style="max-width: 550px;">
+      <header class="w3-container w3-green w3-round-large">
+        <span onclick="document.getElementById('farmerModal').style.display='none'" class="w3-button w3-display-topright">&times;</span>
+        <h4><i class="fa-solid fa-tractor"></i> List Your Harvest Directly</h4>
+      </header>
+
+      <form id="farmerForm" onsubmit="addFarmerProduct(event)" class="w3-container w3-padding">
+        <div class="w3-row-padding" style="margin: 0 -16px;">
+          <div class="w3-half">
+            <p>
+              <label class="w3-small"><strong>Farmer Name & Village *</strong></label>
+              <input type="text" id="inputFarmerName" class="w3-input w3-border w3-round" required placeholder="e.g. Ramesh Patil (Mathura)">
+            </p>
+          </div>
+          <div class="w3-half">
+            <p>
+              <label class="w3-small"><strong>Farmer Phone / ID *</strong></label>
+              <input type="text" id="inputFarmerPhone" class="w3-input w3-border w3-round" required placeholder="e.g. 9876543210">
+            </p>
+          </div>
+        </div>
+
+        <div class="w3-row-padding" style="margin: 0 -16px;">
+          <div class="w3-half">
+            <p>
+              <label class="w3-small"><strong>Crop / Produce Name *</strong></label>
+              <input type="text" id="inputCropName" class="w3-input w3-border w3-round" required placeholder="e.g. Organic Red Tomatoes">
+            </p>
+          </div>
+          <div class="w3-half">
+            <p>
+              <label class="w3-small"><strong>Category *</strong></label>
+              <select id="inputCategory" class="w3-select w3-border w3-round">
+                <option value="vegetables">Vegetables</option>
+                <option value="fruits">Fruits</option>
+                <option value="grains">Grains</option>
+              </select>
+            </p>
+          </div>
+        </div>
+
+        <div class="w3-row-padding" style="margin: 0 -16px;">
+          <div class="w3-half">
+            <p>
+              <label class="w3-small"><strong>Your Price / kg (₹) *</strong></label>
+              <input type="number" id="inputPrice" class="w3-input w3-border w3-round" required placeholder="e.g. 25" min="1">
+            </p>
+          </div>
+          <div class="w3-half">
+            <p>
+              <label class="w3-small"><strong>Available Quantity (kg) *</strong></label>
+              <input type="number" id="inputQty" class="w3-input w3-border w3-round" required placeholder="e.g. 300" min="5">
+            </p>
+          </div>
+        </div>
+
+        <!-- Upload Produce Image -->
+        <div class="w3-margin-bottom">
+          <label class="w3-small"><strong><i class="fa-solid fa-camera"></i> Upload Produce Image (Device Photo or URL):</strong></label>
+          <input type="file" id="inputCropImageFile" accept="image/*" onchange="previewProduceImage(event)" class="w3-input w3-border w3-round w3-small" style="margin-top:4px;">
+          <input type="url" id="inputCropImageUrl" oninput="previewProduceUrl(this.value)" class="w3-input w3-border w3-round w3-small" style="margin-top:6px;" placeholder="Or paste an image URL (optional)">
+          <div class="preview-box" id="imagePreviewContainer">
+            <span class="w3-text-grey w3-small"><i class="fa-regular fa-image"></i> Image preview will appear here</span>
+          </div>
+        </div>
+
+        <!-- Payment Methods Accepted by Farmer -->
+        <div class="w3-margin-bottom w3-padding-small w3-light-grey w3-round w3-border">
+          <label class="w3-small"><strong><i class="fa-solid fa-wallet"></i> Payment Methods Accepted: *</strong></label>
+          <div class="w3-row w3-small w3-margin-top">
+            <div class="w3-col s6 m4">
+              <label><input type="checkbox" name="farmerPayMethod" value="UPI (GPay/PhonePe)" checked class="w3-check"> UPI / QR</label>
+            </div>
+            <div class="w3-col s6 m4">
+              <label><input type="checkbox" name="farmerPayMethod" value="Bank / NEFT" checked class="w3-check"> Bank / NEFT</label>
+            </div>
+            <div class="w3-col s6 m4">
+              <label><input type="checkbox" name="farmerPayMethod" value="Cash on Delivery" class="w3-check"> Cash (COD)</label>
+            </div>
+          </div>
+          <div class="w3-margin-top">
+            <input type="text" id="inputFarmerPayoutDetails" class="w3-input w3-border w3-round w3-small" placeholder="Your UPI ID or Bank A/C for direct payout (e.g. ramesh@upi)" required>
+          </div>
+        </div>
+
+        <button type="submit" class="w3-button w3-block w3-green w3-round w3-margin-bottom">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Publish Harvest to Marketplace
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Login & Registration Modal -->
+  <div id="authModal" class="w3-modal">
+    <div class="w3-modal-content w3-card-4 w3-animate-top w3-round-large" style="max-width: 480px;">
+      <header class="w3-container w3-green w3-round-large">
+        <span onclick="document.getElementById('authModal').style.display='none'" class="w3-button w3-display-topright">&times;</span>
+        <h4><i class="fa-solid fa-id-card"></i> KrishiSetu Account Portal</h4>
+      </header>
+
+      <div class="w3-bar w3-light-grey w3-border-bottom">
+        <button id="tabLoginBtn" onclick="switchAuthTab('login')" class="w3-bar-item w3-button w3-green" style="width:50%;">Login</button>
+        <button id="tabRegisterBtn" onclick="switchAuthTab('register')" class="w3-bar-item w3-button" style="width:50%;">New Registration</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" onsubmit="handleLogin(event)" class="w3-container w3-padding">
+        <p class="w3-small w3-text-grey">Login using your assigned User ID (e.g., KS-xxxxxx), Registered Email, or Phone Number.</p>
+        <p>
+          <label class="w3-small"><strong>User ID / Email / Phone *</strong></label>
+          <input type="text" id="loginIdentifier" class="w3-input w3-border w3-round" required placeholder="Enter KS-ID, Email, or Phone">
+        </p>
+        <p>
+          <label class="w3-small"><strong>Password *</strong></label>
+          <input type="password" id="loginPassword" class="w3-input w3-border w3-round" required placeholder="Enter password">
+        </p>
+        <button type="submit" class="w3-button w3-block w3-green w3-round w3-margin-bottom">
+          <i class="fa-solid fa-right-to-bracket"></i> Login to Account
+        </button>
+      </form>
+
+      <!-- Registration Form -->
+      <form id="registerForm" onsubmit="handleRegister(event)" class="w3-container w3-padding" style="display:none;">
+        <p class="w3-small w3-text-grey">Register to get your unique <strong>KrishiSetu ID</strong> delivered to your Phone & Email.</p>
+        
+        <p>
+          <label class="w3-small"><strong>Account Role *</strong></label>
+          <select id="regRole" class="w3-select w3-border w3-round">
+            <option value="Consumer">Consumer (Buy Direct Produce)</option>
+            <option value="Farmer">Farmer (Sell Harvest Directly)</option>
+          </select>
+        </p>
+        <p>
+          <label class="w3-small"><strong>Full Name *</strong></label>
+          <input type="text" id="regName" class="w3-input w3-border w3-round" required placeholder="e.g. Kisan Lal / Priya Sharma">
+        </p>
+        <div class="w3-row-padding" style="margin: 0 -16px;">
+          <div class="w3-half">
+            <p>
+              <label class="w3-small"><strong>Phone Number (for SMS ID) *</strong></label>
+              <input type="tel" id="regPhone" class="w3-input w3-border w3-round" required placeholder="10-digit mobile number" pattern="[0-9]{10}">
+            </p>
+          </div>
+          <div class="w3-half">
+            <p>
+              <label class="w3-small"><strong>Email Address (for Email ID) *</strong></label>
+              <input type="email" id="regEmail" class="w3-input w3-border w3-round" required placeholder="name@example.com">
+            </p>
+          </div>
+        </div>
+        <p>
+          <label class="w3-small"><strong>Send Generated ID via: *</strong></label>
+          <select id="regDeliveryChannel" class="w3-select w3-border w3-round w3-small">
+            <option value="Both Phone SMS & Email">Both Phone SMS & Email</option>
+            <option value="Phone SMS Only">Phone SMS Only</option>
+            <option value="Email Only">Email Only</option>
+          </select>
+        </p>
+        <p>
+          <label class="w3-small"><strong>Create Password *</strong></label>
+          <input type="password" id="regPassword" class="w3-input w3-border w3-round" required placeholder="Minimum 4 characters" minlength="4">
+        </p>
+
+        <button type="submit" class="w3-button w3-block w3-amber w3-round w3-margin-bottom">
+          <i class="fa-solid fa-user-check"></i> Register & Send My User ID
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. User History Modal (Orders & Listed Harvests) -->
+  <div id="historyModal" class="w3-modal">
+    <div class="w3-modal-content w3-card-4 w3-animate-top w3-round-large" style="max-width: 600px;">
+      <header class="w3-container w3-green w3-round-large">
+        <span onclick="document.getElementById('historyModal').style.display='none'" class="w3-button w3-display-topright">&times;</span>
+        <h4><i class="fa-solid fa-clock-rotate-left"></i> Account Activity History</h4>
+      </header>
+      <div class="w3-container w3-padding">
+        <h5><strong><i class="fa-solid fa-bag-shopping w3-text-green"></i> Purchase Orders</strong></h5>
+        <div id="orderHistoryList" class="w3-margin-bottom" style="max-height: 220px; overflow-y: auto;"></div>
+        <hr>
+        <h5><strong><i class="fa-solid fa-wheat-awn w3-text-amber"></i> Listed Harvests</strong></h5>
+        <div id="harvestHistoryList" class="w3-margin-bottom" style="max-height: 200px; overflow-y: auto;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. User Payment Methods Modal -->
+  <div id="paymentModal" class="w3-modal">
+    <div class="w3-modal-content w3-card-4 w3-animate-top w3-round-large" style="max-width: 480px;">
+      <header class="w3-container w3-green w3-round-large">
+        <span onclick="document.getElementById('paymentModal').style.display='none'" class="w3-button w3-display-topright">&times;</span>
+        <h4><i class="fa-solid fa-credit-card"></i> Saved Payment Methods</h4>
+      </header>
+      <form onsubmit="saveUserPaymentSettings(event)" class="w3-container w3-padding">
+        <p class="w3-small w3-text-grey">Set your default payment method for quick checkout & direct farmer payouts.</p>
+        
+        <p>
+          <label class="w3-small"><strong>Default Payment Mode</strong></label>
+          <select id="userDefaultPayMode" class="w3-select w3-border w3-round">
+            <option value="UPI (GPay / PhonePe / Paytm)">UPI (GPay / PhonePe / Paytm)</option>
+            <option value="Direct Bank Transfer (NEFT/IMPS)">Direct Bank Transfer (NEFT/IMPS)</option>
+            <option value="Cash on Delivery (COD)">Cash on Delivery (COD)</option>
+          </select>
+        </p>
+        <p>
+          <label class="w3-small"><strong>Primary UPI ID</strong></label>
+          <input type="text" id="userUpiId" class="w3-input w3-border w3-round" placeholder="e.g. mobile@upi">
+        </p>
+        <p>
+          <label class="w3-small"><strong>Bank Account & IFSC (For Farmer Payouts / Refunds)</strong></label>
+          <input type="text" id="userBankInfo" class="w3-input w3-border w3-round" placeholder="e.g. SBI A/C 3098XXXX12 (SBIN0001234)">
+        </p>
+
+        <button type="submit" class="w3-button w3-block w3-green w3-round w3-margin-bottom">
+          <i class="fa-solid fa-floppy-disk"></i> Save Payment Preferences
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. Cart / Checkout Modal -->
+  <div id="cartModal" class="w3-modal">
+    <div class="w3-modal-content w3-card-4 w3-round-large w3-animate-right" style="max-width: 480px; margin-right: 0; min-height: 100vh;">
+      <header class="w3-container w3-green">
+        <span onclick="toggleCartModal()" class="w3-button w3-display-topright">&times;</span>
+        <h4><i class="fa-solid fa-basket-shopping"></i> Your Direct Basket</h4>
+      </header>
+
+      <div class="w3-container w3-padding">
+        <div id="cartItems" style="max-height: 45vh; overflow-y: auto;"></div>
+
+        <hr>
+
+        <div class="w3-margin-bottom">
+          <label class="w3-small"><strong>Select Checkout Payment Method:</strong></label>
+          <select id="checkoutPaymentSelect" class="w3-select w3-border w3-round w3-small">
+            <option value="UPI (GPay/PhonePe)">UPI Instant Transfer (GPay / PhonePe)</option>
+            <option value="Bank / NEFT">Direct Bank Transfer (NEFT / IMPS)</option>
+            <option value="Cash on Delivery">Cash on Delivery (COD)</option>
+          </select>
+        </div>
+
+        <div class="w3-card w3-pale-green w3-padding w3-round w3-margin-bottom">
+          <div class="w3-small">
+            <p class="w3-margin-0"><strong>Direct Farmer Payout:</strong> <span id="cartFarmerPayout" class="w3-right w3-text-green">₹0</span></p>
+            <p class="w3-margin-0 w3-text-grey"><strong>Saved vs. Traditional Mandi:</strong> <span id="cartSavings" class="w3-right w3-text-amber">₹0</span></p>
+          </div>
+        </div>
+
+        <div class="w3-row w3-large">
+          <div class="w3-col s6"><strong>Total Amount:</strong></div>
+          <div class="w3-col s6 w3-right-align"><strong id="cartTotal" class="w3-text-green">₹0</strong></div>
+        </div>
+
+        <button onclick="checkout()" class="w3-button w3-block w3-green w3-round w3-margin-top w3-large">
+          Confirm Direct Order
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '/api';
+
+    // Default Fallback Catalog (Used if opened without backend server running)
+    let products = [
+      { id: 1, name: "Organic Red Tomatoes", category: "vegetables", farmer: "Suresh Rao (Ayodhya)", farmerEarns: 22, consumerPrice: 28, mandiPrice: 42, qty: 250, unit: "kg", paymentMethods: ["UPI (GPay/PhonePe)", "Cash on Delivery"], img: "https://images.unsplash.com/photo-1546470427-0d4db154ceb7?w=400&q=80" },
+      { id: 2, name: "Red Onions", category: "vegetables", farmer: "Anand Shinde (Maharajganj)", farmerEarns: 20, consumerPrice: 26, mandiPrice: 38, qty: 400, unit: "kg", paymentMethods: ["UPI (GPay/PhonePe)", "Bank / NEFT"], img: "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=400&q=80" },
+      { id: 3, name: "Fresh Oranges", category: "fruits", farmer: "Gurpreet Singh (Basti)", farmerEarns: 35, consumerPrice: 48, mandiPrice: 75, qty: 180, unit: "kg", paymentMethods: ["UPI (GPay/PhonePe)", "Bank / NEFT", "Cash on Delivery"], img: "https://images.unsplash.com/photo-1582979512210-99b6a53386f9?w=400&q=80" },
+      { id: 4, name: "Sharbati Wheat", category: "grains", farmer: "Babulal Meena (Gorakhpur)", farmerEarns: 32, consumerPrice: 40, mandiPrice: 58, qty: 600, unit: "kg", paymentMethods: ["UPI (GPay/PhonePe)", "Bank / NEFT"], img: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&q=80" }
+    ];
+
+    let cart = [];
+    let uploadedImageDataUrl = "";
+    let currentUser = JSON.parse(localStorage.getItem('ks_current_user') || 'null');
+
+    const comparisonDB = {
+      tomato: { tradFarmer: 14, tradConsumer: 40, directFarmer: 24, directConsumer: 28 },
+      onion:  { tradFarmer: 12, tradConsumer: 35, directFarmer: 20, directConsumer: 26 },
+      potato: { tradFarmer: 10, tradConsumer: 30, directFarmer: 16, directConsumer: 22 },
+      apple:  { tradFarmer: 45, tradConsumer: 130, directFarmer: 75, directConsumer: 95 }
+    };
+
+    // Load Products from Backend API
+    async function loadProductsFromServer() {
+      try {
+        const res = await fetch(`${API_BASE}/products`);
+        if (res.ok) {
+          products = await res.json();
+        }
+      } catch (err) {
+        console.warn("Running in standalone mode (Backend server not detected).");
+      }
+      renderProducts(products);
+    }
+
+    // Profile Dropdown Click Toggle
+    function toggleProfileMenu(event) {
+      event.stopPropagation();
+      const menu = document.getElementById('profileMenuContent');
+      menu.classList.toggle('show-menu');
+    }
+
+    function closeProfileMenu() {
+      const menu = document.getElementById('profileMenuContent');
+      if (menu) menu.classList.remove('show-menu');
+    }
+
+    window.addEventListener('click', function(event) {
+      const wrapper = document.getElementById('navUserDropdown');
+      if (wrapper && !wrapper.contains(event.target)) {
+        closeProfileMenu();
+      }
+    });
+
+    function showToast(htmlMessage) {
+      const box = document.getElementById('toastBox');
+      document.getElementById('toastContent').innerHTML = htmlMessage;
+      box.style.display = 'block';
+      setTimeout(() => { box.style.display = 'none'; }, 9000);
+    }
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobileMenu');
+      if (menu.className.indexOf("w3-show") === -1) {
+        menu.className += " w3-show";
+      } else {
+        menu.className = menu.className.replace(" w3-show", "");
+      }
+    }
+
+    function updatePriceBreakdown() {
+      const selected = document.getElementById('cropSelector').value;
+      const data = comparisonDB[selected];
+      const farmerGainPercent = Math.round(((data.directFarmer - data.tradFarmer) / data.tradFarmer) * 100);
+      const consumerSavePercent = Math.round(((data.tradConsumer - data.directConsumer) / data.tradConsumer) * 100);
+
+      document.getElementById('tradFarmer').innerText = `₹${data.tradFarmer}`;
+      document.getElementById('tradTotal').innerText = `₹${data.tradConsumer} / kg`;
+      document.getElementById('directFarmer').innerText = `₹${data.directFarmer} (+${farmerGainPercent}%)`;
+      document.getElementById('directTotal').innerText = `₹${data.directConsumer} / kg (-${consumerSavePercent}%)`;
+    }
+
+    function renderProducts(items) {
+      const grid = document.getElementById('produceGrid');
+      grid.innerHTML = '';
+
+      items.forEach(p => {
+        const payBadges = (p.paymentMethods || ["UPI", "COD"]).map(m =>
+          `<span class="payment-badge"><i class="fa-solid fa-check"></i> ${m}</span>`
+        ).join('');
+
+        const card = document.createElement('div');
+        card.className = "w3-col l3 m6 s12 w3-margin-bottom";
+        card.innerHTML = `
+          <div class="w3-card w3-white w3-round-large card-hover" style="overflow:hidden;">
+            <img src="${p.img}" alt="${p.name}" class="product-img">
+            <div class="w3-container w3-padding">
+              <span class="w3-tag w3-light-grey w3-round w3-small w3-text-green"><i class="fa-solid fa-user-check"></i> ${p.farmer}</span>
+              <h4 style="margin: 8px 0 4px 0; font-size: 18px;"><strong>${p.name}</strong></h4>
+              <div class="w3-tiny w3-text-grey">Available Stock: <strong>${p.qty ?? 200} ${p.unit}</strong></div>
+
+              <div class="w3-row w3-margin-top">
+                <div class="w3-col s6">
+                  <span class="w3-large w3-text-green"><strong>₹${p.consumerPrice}</strong></span>
+                  <span class="w3-small w3-text-grey">/${p.unit}</span>
+                  <div class="w3-tiny strike-price">Mandi: ₹${p.mandiPrice}</div>
+                </div>
+                <div class="w3-col s6 w3-right-align">
+                  <span class="w3-badge w3-pale-green w3-text-green w3-small">Farmer: ₹${p.farmerEarns}</span>
+                </div>
+              </div>
+
+              <div style="margin-top: 8px;">
+                <div class="w3-tiny w3-text-grey">Accepted Payments:</div>
+                ${payBadges}
+              </div>
+
+              <button onclick="addToCart(${p.id})" class="w3-button w3-block w3-green w3-round w3-margin-top w3-small">
+                <i class="fa-solid fa-cart-plus"></i> Add to Basket
+              </button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function filterProduce(cat, btnEl) {
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        b.classList.remove('w3-green');
+        b.classList.add('w3-white', 'w3-border');
+      });
+      if (btnEl) {
+        btnEl.classList.remove('w3-white', 'w3-border');
+        btnEl.classList.add('w3-green');
+      }
+      if (cat === 'all') renderProducts(products);
+      else renderProducts(products.filter(p => p.category === cat));
+    }
+
+    // Image Upload & Live Preview
+    function previewProduceImage(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        uploadedImageDataUrl = e.target.result;
+        document.getElementById('imagePreviewContainer').innerHTML = `<img src="${uploadedImageDataUrl}" alt="Produce Preview">`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function previewProduceUrl(url) {
+      if (url.trim() !== "") {
+        uploadedImageDataUrl = url.trim();
+        document.getElementById('imagePreviewContainer').innerHTML = `<img src="${uploadedImageDataUrl}" alt="Produce Preview">`;
+      }
+    }
+
+    function openSellModal() {
+      if (currentUser) {
+        document.getElementById('inputFarmerName').value = `${currentUser.name} (${currentUser.id})`;
+        document.getElementById('inputFarmerPhone').value = currentUser.phone || '';
+        if (currentUser.upi) document.getElementById('inputFarmerPayoutDetails').value = currentUser.upi;
+      }
+      document.getElementById('farmerModal').style.display = 'block';
+    }
+
+    async function addFarmerProduct(e) {
+      e.preventDefault();
+      const name = document.getElementById('inputCropName').value;
+      const farmer = document.getElementById('inputFarmerName').value;
+      const phone = document.getElementById('inputFarmerPhone').value;
+      const category = document.getElementById('inputCategory').value;
+      const farmerPrice = parseFloat(document.getElementById('inputPrice').value);
+      const qty = parseInt(document.getElementById('inputQty').value, 10);
+      const payoutDetails = document.getElementById('inputFarmerPayoutDetails').value;
+
+      const paymentMethods = Array.from(document.querySelectorAll('input[name="farmerPayMethod"]:checked')).map(cb => cb.value);
+      if (paymentMethods.length === 0) {
+        alert("Please select at least one accepted payment method.");
+        return;
+      }
+
+      const payload = {
+        name,
+        category,
+        farmer,
+        farmerId: currentUser ? currentUser.id : "GUEST",
+        phone,
+        farmerPrice,
+        qty,
+        paymentMethods,
+        payoutDetails,
+        img: uploadedImageDataUrl || "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&q=80"
+      };
+
+      try {
+        const res = await fetch(`${API_BASE}/products`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          const data = await res.json();
+          products.unshift(data.product);
+        } else {
+          throw new Error("Fallback to local");
+        }
+      } catch (err) {
+        products.unshift({
+          ...payload,
+          id: Date.now(),
+          farmerEarns: farmerPrice,
+          consumerPrice: Math.round(farmerPrice * 1.22),
+          mandiPrice: Math.round(farmerPrice * 1.70),
+          unit: "kg"
+        });
+      }
+
+      renderProducts(products);
+      document.getElementById('farmerModal').style.display = 'none';
+      e.target.reset();
+      uploadedImageDataUrl = "";
+      document.getElementById('imagePreviewContainer').innerHTML = `<span class="w3-text-grey w3-small"><i class="fa-regular fa-image"></i> Image preview will appear here</span>`;
+
+      showToast(`<strong><i class="fa-solid fa-circle-check"></i> Harvest Published!</strong><br>${name} (${qty} kg) is now live on the marketplace.`);
+    }
+
+    // Auth Modal & API Calls
+    function openAuthModal(tab) {
+      document.getElementById('authModal').style.display = 'block';
+      switchAuthTab(tab || 'login');
+    }
+
+    function switchAuthTab(tab) {
+      const loginForm = document.getElementById('loginForm');
+      const regForm = document.getElementById('registerForm');
+      const loginBtn = document.getElementById('tabLoginBtn');
+      const regBtn = document.getElementById('tabRegisterBtn');
+
+      if (tab === 'login') {
+        loginForm.style.display = 'block';
+        regForm.style.display = 'none';
+        loginBtn.classList.add('w3-green');
+        regBtn.classList.remove('w3-green');
+      } else {
+        loginForm.style.display = 'none';
+        regForm.style.display = 'block';
+        regBtn.classList.add('w3-green');
+        loginBtn.classList.remove('w3-green');
+      }
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      const payload = {
+        role: document.getElementById('regRole').value,
+        name: document.getElementById('regName').value.trim(),
+        phone: document.getElementById('regPhone').value.trim(),
+        email: document.getElementById('regEmail').value.trim(),
+        deliveryChannel: document.getElementById('regDeliveryChannel').value,
+        password: document.getElementById('regPassword').value
+      };
+
+      let registeredUser = null;
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) return alert(data.error || "Registration failed.");
+        registeredUser = data.user;
+      } catch (err) {
+        registeredUser = {
+          id: "KS-" + Math.floor(100000 + Math.random() * 900000),
+          ...payload,
+          defaultPayMode: "UPI (GPay / PhonePe / Paytm)",
+          upi: `${payload.phone}@upi`,
+          bank: ""
+        };
+      }
+
+      currentUser = registeredUser;
+      localStorage.setItem('ks_current_user', JSON.stringify(currentUser));
+      updateAuthUI();
+      document.getElementById('authModal').style.display = 'none';
+      e.target.reset();
+
+      const mailtoLink = `mailto:${encodeURIComponent(currentUser.email)}?subject=${encodeURIComponent('Your KrishiSetu User ID: ' + currentUser.id)}&body=${encodeURIComponent('Welcome to KrishiSetu, ' + currentUser.name + '!\n\nYour Registered User ID is: ' + currentUser.id + '\nRole: ' + currentUser.role + '\nPhone: ' + currentUser.phone)}`;
+
+      showToast(`
+        <strong><i class="fa-solid fa-id-badge"></i> Registration Complete!</strong><br>
+        Your User ID is <span class="w3-tag w3-amber w3-round"><strong>${currentUser.id}</strong></span><br>
+        <small>Dispatched via ${payload.deliveryChannel} to <b>${currentUser.phone}</b> & <b>${currentUser.email}</b>.</small><br>
+        <a href="${mailtoLink}" class="w3-button w3-tiny w3-white w3-text-green w3-round w3-margin-top">
+          <i class="fa-solid fa-envelope"></i> Send Copy to Email App
+        </a>
+      `);
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const identifier = document.getElementById('loginIdentifier').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identifier, password })
+        });
+        const data = await res.json();
+        if (!res.ok) return alert(data.error || "Invalid credentials.");
+        currentUser = data.user;
+      } catch (err) {
+        return alert("Backend server unreachable or invalid credentials.");
+      }
+
+      localStorage.setItem('ks_current_user', JSON.stringify(currentUser));
+      updateAuthUI();
+      document.getElementById('authModal').style.display = 'none';
+      e.target.reset();
+
+      showToast(`<strong>Welcome back, ${currentUser.name}!</strong><br><small>Logged in with ID: ${currentUser.id} (${currentUser.role})</small>`);
+    }
+
+    function logoutUser() {
+      currentUser = null;
+      localStorage.removeItem('ks_current_user');
+      closeProfileMenu();
+      updateAuthUI();
+      showToast(`<strong>Logged Out Successfully</strong><br><small>You have been signed out of your KrishiSetu account.</small>`);
+    }
+
+    function updateAuthUI() {
+      const loginBtn = document.getElementById('navLoginBtn');
+      const userDropdown = document.getElementById('navUserDropdown');
+      const mobileAuth = document.getElementById('mobileAuthLinks');
+      const mobileUser = document.getElementById('mobileUserLinks');
+
+      if (currentUser) {
+        loginBtn.style.display = 'none';
+        userDropdown.style.display = 'inline-block';
+        document.getElementById('navUserName').innerText = currentUser.name.split(' ')[0];
+        document.getElementById('navUserIdBadge').innerText = `${currentUser.id} (${currentUser.role})`;
+
+        mobileAuth.style.display = 'none';
+        mobileUser.style.display = 'block';
+        document.getElementById('mobileUserName').innerText = currentUser.name;
+        document.getElementById('mobileUserId').innerText = currentUser.id;
+
+        document.getElementById('fbName').value = currentUser.name;
+        document.getElementById('fbContact').value = currentUser.email || currentUser.phone;
+      } else {
+        loginBtn.style.display = 'inline-block';
+        userDropdown.style.display = 'none';
+        mobileAuth.style.display = 'block';
+        mobileUser.style.display = 'none';
+      }
+    }
+
+    // History Modal (Fetched from Backend API)
+    async function openHistoryModal() {
+      const orderBox = document.getElementById('orderHistoryList');
+      const harvestBox = document.getElementById('harvestHistoryList');
+      let orders = [];
+      let harvests = [];
+
+      try {
+        const query = currentUser ? `?userId=${encodeURIComponent(currentUser.id)}` : '';
+        const res = await fetch(`${API_BASE}/history${query}`);
+        if (res.ok) {
+          const data = await res.json();
+          orders = data.orders || [];
+          harvests = data.harvests || [];
+        }
+      } catch (err) {
+        console.warn("Could not fetch history from server.");
+      }
+
+      orderBox.innerHTML = orders.length === 0
+        ? `<p class="w3-small w3-text-grey">No orders placed yet.</p>`
+        : orders.map(o => `
+            <div class="w3-panel w3-light-grey w3-round w3-padding-small w3-small">
+              <strong>Order #${o.orderId}</strong> <span class="w3-right w3-text-green"><strong>₹${o.total}</strong></span><br>
+              <span>Items: ${o.items}</span><br>
+              <small class="w3-text-grey">Payment: ${o.paymentMethod} | ${o.date}</small>
+            </div>
+          `).join('');
+
+      harvestBox.innerHTML = harvests.length === 0
+        ? `<p class="w3-small w3-text-grey">No harvests listed yet.</p>`
+        : harvests.map(h => `
+            <div class="w3-panel w3-pale-green w3-round w3-padding-small w3-small">
+              <strong>${h.crop}</strong> (${h.qty} kg @ ₹${h.price}/kg)<br>
+              <small class="w3-text-grey">Accepted: ${h.methods} | Listed: ${h.date}</small>
+            </div>
+          `).join('');
+
+      document.getElementById('historyModal').style.display = 'block';
+    }
+
+    function openPaymentModal() {
+      if (currentUser) {
+        document.getElementById('userDefaultPayMode').value = currentUser.defaultPayMode || "UPI (GPay / PhonePe / Paytm)";
+        document.getElementById('userUpiId').value = currentUser.upi || "";
+        document.getElementById('userBankInfo').value = currentUser.bank || "";
+      }
+      document.getElementById('paymentModal').style.display = 'block';
+    }
+
+    async function saveUserPaymentSettings(e) {
+      e.preventDefault();
+      const defaultPayMode = document.getElementById('userDefaultPayMode').value;
+      const upi = document.getElementById('userUpiId').value;
+      const bank = document.getElementById('userBankInfo').value;
+
+      if (currentUser) {
+        try {
+          const res = await fetch(`${API_BASE}/users/${encodeURIComponent(currentUser.id)}/payment`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ defaultPayMode, upi, bank })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            currentUser = data.user;
+          }
+        } catch (err) {
+          currentUser.defaultPayMode = defaultPayMode;
+          currentUser.upi = upi;
+          currentUser.bank = bank;
+        }
+        localStorage.setItem('ks_current_user', JSON.stringify(currentUser));
+      }
+
+      document.getElementById('paymentModal').style.display = 'none';
+      showToast(`<strong><i class="fa-solid fa-credit-card"></i> Payment Preferences Saved!</strong><br><small>Default: ${defaultPayMode}</small>`);
+    }
+
+    // Cart & Checkout
+    function addToCart(id) {
+      const item = products.find(p => p.id === id);
+      const existing = cart.find(c => c.id === id);
+      if (existing) existing.qty += 1;
+      else cart.push({ ...item, qty: 1 });
+      updateCart();
+    }
+
+    function removeFromCart(id) {
+      cart = cart.filter(c => c.id !== id);
+      updateCart();
+    }
+
+    function updateCart() {
+      const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+      document.getElementById('cartCount').innerText = totalItems;
+      document.getElementById('mobileCartCount').innerText = totalItems;
+
+      const cartItems = document.getElementById('cartItems');
+      if (cart.length === 0) {
+        cartItems.innerHTML = '<p class="w3-center w3-text-grey w3-padding-32">Your basket is empty.</p>';
+      } else {
+        cartItems.innerHTML = cart.map(item => `
+          <div class="w3-row w3-padding-small w3-border-bottom">
+            <div class="w3-col s7">
+              <strong>${item.name}</strong><br>
+              <span class="w3-small w3-text-grey">₹${item.consumerPrice} x ${item.qty} ${item.unit}</span>
+            </div>
+            <div class="w3-col s3 w3-right-align">
+              <strong>₹${item.consumerPrice * item.qty}</strong>
+            </div>
+            <div class="w3-col s2 w3-right-align">
+              <button onclick="removeFromCart(${item.id})" class="w3-button w3-text-red w3-hover-none">&times;</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      const total = cart.reduce((sum, item) => sum + (item.consumerPrice * item.qty), 0);
+      const farmerTotal = cart.reduce((sum, item) => sum + (item.farmerEarns * item.qty), 0);
+      const mandiBenchmark = cart.reduce((sum, item) => sum + (item.mandiPrice * item.qty), 0);
+
+      document.getElementById('cartTotal').innerText = `₹${total}`;
+      document.getElementById('cartFarmerPayout').innerText = `₹${farmerTotal}`;
+      document.getElementById('cartSavings').innerText = `₹${Math.max(0, mandiBenchmark - total)}`;
+    }
+
+    function toggleCartModal() {
+      const modal = document.getElementById('cartModal');
+      modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+    }
+
+    async function checkout() {
+      if (cart.length === 0) return alert("Please add items to your cart!");
+      const paymentMethod = document.getElementById('checkoutPaymentSelect').value;
+      const total = cart.reduce((sum, item) => sum + (item.consumerPrice * item.qty), 0);
+      const farmerPayout = cart.reduce((sum, item) => sum + (item.farmerEarns * item.qty), 0);
+
+      let orderId = "ORD-" + Math.floor(10000 + Math.random() * 90000);
+
+      try {
+        const res = await fetch(`${API_BASE}/orders`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: currentUser ? currentUser.id : "GUEST",
+            items: cart,
+            total,
+            farmerPayout,
+            paymentMethod
+          })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          orderId = data.order.orderId;
+          products = data.updatedProducts;
+          renderProducts(products);
+        }
+      } catch (err) {
+        console.warn("Order processed locally.");
+      }
+
+      cart = [];
+      updateCart();
+      toggleCartModal();
+      showToast(`<strong><i class="fa-solid fa-truck-fast"></i> Order ${orderId} Confirmed!</strong><br><small>Paid ₹${total} via ${paymentMethod}. Saved in your Order History.</small>`);
+    }
+
+    // Contact Us / Developer Feedback API Call
+    async function submitFeedback(e) {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById('fbName').value,
+        contact: document.getElementById('fbContact').value,
+        category: document.getElementById('fbType').value,
+        rating: document.getElementById('fbRating').value,
+        message: document.getElementById('fbMessage').value
+      };
+
+      let ticketId = "DEV-" + Math.floor(1000 + Math.random() * 9000);
+      let replyText = `Hi ${payload.name}, thank you for reaching out regarding "${payload.category}". Our developer team has logged your message and sent a confirmation to ${payload.contact}.`;
+
+      try {
+        const res = await fetch(`${API_BASE}/contact`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          const data = await res.json();
+          ticketId = data.ticket.ticketId;
+          replyText = data.ticket.developerReply;
+        }
+      } catch (err) {
+        console.warn("Feedback logged locally.");
+      }
+
+      const devMailto = `mailto:support.krishisetu@agriindia.in?subject=${encodeURIComponent('[' + ticketId + '] ' + payload.category + ' from ' + payload.name)}&body=${encodeURIComponent('Sender: ' + payload.name + ' (' + payload.contact + ')\nCategory: ' + payload.category + '\n\nMessage:\n' + payload.message)}`;
+
+      const responseBox = document.getElementById('devResponseBox');
+      responseBox.style.display = 'block';
+      responseBox.innerHTML = `
+        <strong><i class="fa-solid fa-reply w3-text-green"></i> Developer Response (${ticketId}):</strong><br>
+        <span class="w3-small">${replyText}</span><br>
+        <a href="${devMailto}" class="w3-button w3-tiny w3-green w3-round w3-margin-top">
+          <i class="fa-solid fa-envelope-open-text"></i> Also Open in Email Client
+        </a>
+      `;
+      e.target.reset();
+    }
+
+    // Initialize App
+    loadProductsFromServer();
+    updatePriceBreakdown();
+    updateAuthUI();
+  </script>
+</body>
+</html>
